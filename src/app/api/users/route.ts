@@ -23,4 +23,30 @@ export async function GET() {
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Failed to fetch users' }, { status: 500 });
   }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const { id, name, email } = await req.json();
+    if (!id) return NextResponse.json({ error: 'User id is required' }, { status: 400 });
+    if (!email) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    const user = await prisma.user.update({
+      where: { id },
+      data: { name, email },
+    });
+    return NextResponse.json(user);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Failed to update user' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { id } = await req.json();
+    if (!id) return NextResponse.json({ error: 'User id is required' }, { status: 400 });
+    await prisma.user.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Failed to delete user' }, { status: 500 });
+  }
 } 
