@@ -1,38 +1,51 @@
-import React, { useState, useMemo } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, TablePagination, Box } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Box, CircularProgress, Alert } from '@mui/material';
 import UserTableToolbar from './UserTableToolbar';
+import { useUserTable, User } from '../hooks/useUserTable';
 
-// Mock data
-const mockUsers = [
-  { id: '1', name: 'Alice', email: 'alice@example.com' },
-  { id: '2', name: 'Bob', email: 'bob@example.com' },
-  { id: '3', name: 'Charlie', email: 'charlie@example.com' },
-  { id: '4', name: 'David', email: 'david@example.com' },
-  { id: '5', name: 'Eve', email: 'eve@example.com' },
-  { id: '6', name: 'Frank', email: 'frank@example.com' },
-  { id: '7', name: 'Grace', email: 'grace@example.com' },
-  { id: '8', name: 'Heidi', email: 'heidi@example.com' },
-  { id: '9', name: 'Ivan', email: 'ivan@example.com' },
-  { id: '10', name: 'Judy', email: 'judy@example.com' },
-];
+interface UserTableProps {
+  refreshSignal?: number;
+}
 
-const UserTable: React.FC = () => {
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+const UserTable: React.FC<UserTableProps> = ({ refreshSignal }) => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filtered and searched users
-  const filteredUsers = useMemo(() => {
-    return mockUsers.filter(user =>
-      user.name.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search]);
+  useEffect(() => {
+    let ignore = false;
+    setLoading(true);
+    setError(null);
+    fetch('/api/users')
+      .then(res => res.json())
+      .then(data => {
+        if (!ignore) {
+          if (Array.isArray(data)) setUsers(data);
+          else setError(data.error || 'Failed to fetch users');
+        }
+      })
+      .catch(err => {
+        if (!ignore) setError(err.message);
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
+    return () => { ignore = true; };
+  }, [refreshSignal]);
 
-  // Paginated users
-  const paginatedUsers = useMemo(() => {
-    const start = page * rowsPerPage;
-    return filteredUsers.slice(start, start + rowsPerPage);
-  }, [filteredUsers, page, rowsPerPage]);
+  const {
+    search,
+    setSearch,
+    page,
+    setPage,
+    rowsPerPage,
+    setRowsPerPage,
+    filteredUsers,
+    paginatedUsers,
+  } = useUserTable(users);
+
+  if (loading) return <Box display="flex" justifyContent="center" p={4}><CircularProgress /></Box>;
+  if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
     <Paper elevation={0} sx={{ p: 2 }}>
@@ -69,10 +82,7 @@ const UserTable: React.FC = () => {
           page={page}
           onPageChange={(_, newPage) => setPage(newPage)}
           rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={e => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
+          onRowsPerPageChange={e => setRowsPerPage(parseInt(e.target.value, 10))}
           rowsPerPageOptions={[5, 10, 25]}
         />
       </Box>

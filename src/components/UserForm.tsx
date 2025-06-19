@@ -1,0 +1,82 @@
+import React, { useState } from 'react';
+import { Box, Button, TextField, Alert } from '@mui/material';
+
+interface UserFormProps {
+  onUserCreated?: () => void;
+}
+
+const UserForm: React.FC<UserFormProps> = ({ onUserCreated }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const validate = () => {
+    if (!name.trim()) return 'Name is required';
+    if (!email.trim()) return 'Email is required';
+    // Simple email regex
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'Invalid email address';
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to create user');
+      }
+      setSuccess(true);
+      setName('');
+      setEmail('');
+      if (onUserCreated) onUserCreated();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSubmit} mb={3} display="flex" flexDirection="column" gap={2} maxWidth={400}>
+      {error && <Alert severity="error">{error}</Alert>}
+      {success && <Alert severity="success">User created successfully!</Alert>}
+      <TextField
+        label="Name"
+        value={name}
+        onChange={e => setName(e.target.value)}
+        disabled={loading}
+        fullWidth
+        required
+      />
+      <TextField
+        label="Email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        disabled={loading}
+        required
+        type="email"
+        fullWidth
+      />
+      <Button type="submit" variant="contained" color="primary" disabled={loading}>
+        {loading ? 'Saving...' : 'Add User'}
+      </Button>
+    </Box>
+  );
+};
+
+export default UserForm; 
