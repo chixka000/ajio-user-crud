@@ -6,11 +6,8 @@ import UserTableToolbar from './UserTableToolbar';
 import { useUserTable, User } from '../hooks/useUserTable';
 import UserForm from './UserForm';
 
-interface UserTableProps {
-  refreshSignal?: number;
-}
 
-const UserTable: React.FC<UserTableProps> = ({ refreshSignal }) => {
+const UserTable: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +36,7 @@ const UserTable: React.FC<UserTableProps> = ({ refreshSignal }) => {
         if (!ignore) setLoading(false);
       });
     return () => { ignore = true; };
-  }, [refreshSignal, localRefresh]);
+  }, [ localRefresh]);
 
   const {
     search,
@@ -89,7 +86,7 @@ const UserTable: React.FC<UserTableProps> = ({ refreshSignal }) => {
 
   return (
     <Paper elevation={0} sx={{ p: 2 }}>
-      <UserTableToolbar search={search} setSearch={setSearch} />
+      <UserTableToolbar search={search} setSearch={setSearch} onUserCreated={() => setLocalRefresh(r => r + 1)} />
       <TableContainer>
         <Table size="small" aria-label="users table">
           <TableHead>
