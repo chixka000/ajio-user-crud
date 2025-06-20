@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Box, CircularProgress, Alert, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Box, CircularProgress, Alert, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Chip, Stack } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SchoolIcon from '@mui/icons-material/School';
 import UserTableToolbar from './UserTableToolbar';
 import { useUserTable, User } from '../hooks/useUserTable';
 import UserForm from './UserForm';
+import CourseAssignment from './CourseAssignment';
 
 
 const UserTable: React.FC = () => {
@@ -13,15 +15,17 @@ const UserTable: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
+  const [courseAssignUser, setCourseAssignUser] = useState<User | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [localRefresh, setLocalRefresh] = useState(0);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     let ignore = false;
     setLoading(true);
     setError(null);
-    fetch('/api/users')
+    fetch('/api/user-courses')
       .then(res => res.json())
       .then(data => {
         if (!ignore) {
@@ -36,7 +40,7 @@ const UserTable: React.FC = () => {
         if (!ignore) setLoading(false);
       });
     return () => { ignore = true; };
-  }, [ localRefresh]);
+  }, [localRefresh]);
 
   const {
     search,
@@ -51,9 +55,19 @@ const UserTable: React.FC = () => {
 
   const handleEdit = (user: User) => setEditUser(user);
   const handleEditClose = () => setEditUser(null);
+  const handleCourseAssign = (user: User) => setCourseAssignUser(user);
+  const handleCourseAssignClose = () => setCourseAssignUser(null);
+  const handleShowSnackbar = (message: string, severity: 'success' | 'error') => setSnackbar({ open: true, message, severity });
+  const handleSnackbarClose = () => setSnackbar({ open: false, message: '', severity: 'success' });
+
   const handleEditSuccess = () => {
     setLocalRefresh(r => r + 1);
     handleEditClose();
+    handleShowSnackbar('User updated successfully!', 'success');
+  };
+
+  const handleAssignmentChange = () => {
+    setLocalRefresh(r => r + 1);
   };
 
   const handleDelete = (user: User) => setDeleteUser(user);
@@ -74,6 +88,7 @@ const UserTable: React.FC = () => {
       }
       setLocalRefresh(r => r + 1);
       handleDeleteClose();
+      handleShowSnackbar('User deleted successfully!', 'error');
     } catch (err: any) {
       setActionError(err.message);
     } finally {
@@ -86,13 +101,21 @@ const UserTable: React.FC = () => {
 
   return (
     <Paper elevation={0} sx={{ p: 2 }}>
-      <UserTableToolbar search={search} setSearch={setSearch} onUserCreated={() => setLocalRefresh(r => r + 1)} />
+      <UserTableToolbar
+        search={search}
+        setSearch={setSearch}
+        onUserCreated={() => {
+          setLocalRefresh(r => r + 1);
+          handleShowSnackbar('User created successfully!', 'success');
+        }}
+      />
       <TableContainer>
         <Table size="small" aria-label="users table">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
+              <TableCell>Courses</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -101,7 +124,27 @@ const UserTable: React.FC = () => {
               <TableRow key={user.id}>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  {user.courses && user.courses.length > 0 ? (
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
+                      {user.courses.map(course => (
+                        <Chip
+                          key={course.id}
+                          label={course.title}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                        />
+                      ))}
+                    </Stack>
+                  ) : (
+                    <em>No courses</em>
+                  )}
+                </TableCell>
                 <TableCell align="right">
+                  <IconButton size="small" onClick={() => handleCourseAssign(user)} title="Manage Courses">
+                    <SchoolIcon />
+                  </IconButton>
                   <IconButton size="small" onClick={() => handleEdit(user)}><EditIcon /></IconButton>
                   <IconButton size="small" color="error" onClick={() => handleDelete(user)}><DeleteIcon /></IconButton>
                 </TableCell>
@@ -109,7 +152,7 @@ const UserTable: React.FC = () => {
             ))}
             {paginatedUsers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={3} align="center">
+                <TableCell colSpan={4} align="center">
                   No users found.
                 </TableCell>
               </TableRow>
@@ -158,6 +201,25 @@ const UserTable: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      
+      {/* Course Assignment Modal */}
+      <CourseAssignment
+        open={!!courseAssignUser}
+        onClose={handleCourseAssignClose}
+        user={courseAssignUser}
+        onAssignmentChange={handleAssignmentChange}
+      />
+      
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };

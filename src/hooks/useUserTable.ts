@@ -1,9 +1,16 @@
 import { useState, useMemo } from 'react';
 
+export interface Course {
+  id: string;
+  title: string;
+  description: string | null;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
+  courses?: Course[];
 }
 
 export function useUserTable(users: User[]) {

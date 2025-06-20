@@ -1,10 +1,39 @@
 "use client";
 import React, { useState } from 'react';
 import UserTable from '@/components/UserTable';
-import UserForm from '@/components/UserForm';
-import { Box } from '@mui/material';
+import CourseTable from '@/components/CourseTable';
+import CourseForm from '@/components/CourseForm';
+import { Box, Tabs, Tab, Typography } from '@mui/material';
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
 export default function Home() {
+  const [tabValue, setTabValue] = useState(0);
+  const [courseRefresh, setCourseRefresh] = useState(0);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
   return (
     <Box
@@ -30,8 +59,33 @@ export default function Home() {
           mt: { xs: 1, sm: 4 },
         }}
       >
-        <h1 style={{ fontWeight: 600, fontSize: 32, marginBottom: 24, textAlign: 'center' }}>Users Dashboard</h1>
-        <UserTable />
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
+          Education Management System
+        </Typography>
+        
+        <Tabs value={tabValue} onChange={handleTabChange} centered sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+          <Tab label="Users" />
+          <Tab label="Courses" />
+        </Tabs>
+        
+        <TabPanel value={tabValue} index={0}>
+          <UserTable />
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={1}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Create New Course
+            </Typography>
+            <CourseForm onCourseCreated={() => setCourseRefresh(r => r + 1)} />
+          </Box>
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              All Courses
+            </Typography>
+            <CourseTable key={courseRefresh} />
+          </Box>
+        </TabPanel>
       </Box>
     </Box>
   );
