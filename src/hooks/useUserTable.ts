@@ -13,10 +13,13 @@ export interface User {
   courses?: Course[];
 }
 
+// Constants
+const DEFAULT_ROWS_PER_PAGE = 5;
+
 export function useUserTable(users: User[]) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
 
   // Filtered and searched users
   const filteredUsers = useMemo(() => {

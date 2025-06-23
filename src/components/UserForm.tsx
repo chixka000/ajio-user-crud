@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Alert } from '@mui/material';
 import { User } from '../hooks/useUserTable';
+import { validateUserForm } from '../utils/validation';
 
 interface UserFormProps {
   onUserCreated?: () => void;
@@ -22,19 +23,12 @@ const UserForm: React.FC<UserFormProps> = ({ onUserCreated, initialValues, isEdi
     }
   }, [initialValues]);
 
-  const validate = () => {
-    if (!name.trim()) return 'Name is required';
-    if (!email.trim()) return 'Email is required';
-    // Simple email regex
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'Invalid email address';
-    return null;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
-    const validationError = validate();
+    const validationError = validateUserForm(name, email);
     if (validationError) {
       setError(validationError);
       return;
@@ -73,13 +67,22 @@ const UserForm: React.FC<UserFormProps> = ({ onUserCreated, initialValues, isEdi
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} mb={3} pt={2} display="flex" flexDirection="column" gap={2} maxWidth={400}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      mb={3}
+      pt={2}
+      display="flex"
+      flexDirection="column"
+      gap={2}
+      maxWidth={400}
+    >
       {error && <Alert severity="error">{error}</Alert>}
       {success && <Alert severity="success">User {isEdit ? 'updated' : 'created'} successfully!</Alert>}
       <TextField
         label="Name"
         value={name}
-        onChange={e => setName(e.target.value)}
+        onChange={(event) => setName(event.target.value)}
         disabled={loading}
         fullWidth
         required
@@ -87,13 +90,18 @@ const UserForm: React.FC<UserFormProps> = ({ onUserCreated, initialValues, isEdi
       <TextField
         label="Email"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(event) => setEmail(event.target.value)}
         disabled={loading}
         required
         type="email"
         fullWidth
       />
-      <Button type="submit" variant="contained" color="primary" disabled={loading}>
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={loading}
+      >
         {loading ? (isEdit ? 'Updating...' : 'Saving...') : isEdit ? 'Update User' : 'Add User'}
       </Button>
     </Box>

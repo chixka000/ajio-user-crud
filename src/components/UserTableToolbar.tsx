@@ -23,8 +23,20 @@ const UserTableToolbar: React.FC<UserTableToolbarProps> = ({
   };
 
   return (
-    <Box mb={2} display="flex" flexDirection={{ xs: 'column', sm: 'row' }} alignItems="center" gap={2} justifyContent="flex-end">
-      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+    <Box
+      mb={2}
+      display="flex"
+      flexDirection={{ xs: 'column', sm: 'row' }}
+      alignItems="center"
+      gap={2}
+      justifyContent="flex-end"
+    >
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>Add User</DialogTitle>
         <DialogContent>
           <UserForm onUserCreated={handleUserCreatedLocal} />
@@ -33,7 +45,12 @@ const UserTableToolbar: React.FC<UserTableToolbarProps> = ({
           <Button onClick={handleClose}>Cancel</Button>
         </DialogActions>
       </Dialog>
-      <Button variant="contained" color="primary" onClick={handleOpen} sx={{ width: { xs: '100%', sm: 240 }, minWidth: { sm: 240 } }}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleOpen}
+        sx={{ width: { xs: '100%', sm: 240 }, minWidth: { sm: 240 } }}
+      >
         Add User
       </Button>
       <TextField
@@ -41,7 +58,7 @@ const UserTableToolbar: React.FC<UserTableToolbarProps> = ({
         variant="outlined"
         placeholder="Search by name"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(event) => setSearch(event.target.value)}
         sx={{ width: { xs: '100%', sm: 240 }, minWidth: { sm: 240 } }}
         inputProps={{ "aria-label": "search users by name" }}
       />

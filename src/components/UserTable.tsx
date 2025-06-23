@@ -9,6 +9,11 @@ import UserForm from './UserForm';
 import CourseAssignment from './CourseAssignment';
 
 
+// Constants
+const ROWS_PER_PAGE_OPTIONS = [5, 10, 25] as const;
+const SNACKBAR_AUTO_HIDE_DURATION = 3000;
+const DECIMAL_RADIX = 10;
+
 const UserTable: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,22 +28,24 @@ const UserTable: React.FC = () => {
 
   useEffect(() => {
     let ignore = false;
-    setLoading(true);
-    setError(null);
-    fetch('/api/user-courses')
-      .then(res => res.json())
-      .then(data => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/user-courses');
+        const data = await response.json();
         if (!ignore) {
           if (Array.isArray(data)) setUsers(data);
           else setError(data.error || 'Failed to fetch users');
         }
-      })
-      .catch(err => {
-        if (!ignore) setError(err.message);
-      })
-      .finally(() => {
+      } catch (error: any) {
+        if (!ignore) setError(error.message);
+      } finally {
         if (!ignore) setLoading(false);
-      });
+      }
+    };
+    
+    fetchUsers();
     return () => { ignore = true; };
   }, [localRefresh]);
 
@@ -142,11 +149,26 @@ const UserTable: React.FC = () => {
                   )}
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton size="small" onClick={() => handleCourseAssign(user)} title="Manage Courses">
+                  <IconButton
+                    size="small"
+                    onClick={() => handleCourseAssign(user)}
+                    title="Manage Courses"
+                  >
                     <SchoolIcon />
                   </IconButton>
-                  <IconButton size="small" onClick={() => handleEdit(user)}><EditIcon /></IconButton>
-                  <IconButton size="small" color="error" onClick={() => handleDelete(user)}><DeleteIcon /></IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleEdit(user)}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => handleDelete(user)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -165,10 +187,10 @@ const UserTable: React.FC = () => {
           component="div"
           count={filteredUsers.length}
           page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
+          onPageChange={(event, newPage) => setPage(newPage)}
           rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={e => setRowsPerPage(parseInt(e.target.value, 10))}
-          rowsPerPageOptions={[5, 10, 25]}
+          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, DECIMAL_RADIX))}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         />
       </Box>
       {/* Edit User Modal */}
@@ -212,7 +234,7 @@ const UserTable: React.FC = () => {
       
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={3000}
+        autoHideDuration={SNACKBAR_AUTO_HIDE_DURATION}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
