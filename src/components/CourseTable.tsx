@@ -7,6 +7,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CourseForm from './CourseForm';
+import { formatRelativeTime } from '../utils/dateFormat';
 
 interface Course {
   id: string;
@@ -34,22 +35,24 @@ const CourseTable: React.FC = () => {
 
   useEffect(() => {
     let ignore = false;
-    setLoading(true);
-    setError(null);
-    fetch('/api/courses')
-      .then(res => res.json())
-      .then(data => {
+    const fetchCourses = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/courses');
+        const data = await response.json();
         if (!ignore) {
           if (Array.isArray(data)) setCourses(data);
           else setError(data.error || 'Failed to fetch courses');
         }
-      })
-      .catch(err => {
-        if (!ignore) setError(err.message);
-      })
-      .finally(() => {
+      } catch (error: any) {
+        if (!ignore) setError(error.message);
+      } finally {
         if (!ignore) setLoading(false);
-      });
+      }
+    };
+    
+    fetchCourses();
     return () => { ignore = true; };
   }, [localRefresh]);
 
@@ -103,6 +106,8 @@ const CourseTable: React.FC = () => {
               <TableCell>Title</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Enrolled Students</TableCell>
+              <TableCell>Created</TableCell>
+              <TableCell>Updated</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -120,6 +125,12 @@ const CourseTable: React.FC = () => {
                     color={course._count.users > 0 ? 'primary' : 'default'}
                   />
                 </TableCell>
+                <TableCell>
+                  {course.createdAt && formatRelativeTime(course.createdAt)}
+                </TableCell>
+                <TableCell>
+                  {course.updatedAt && formatRelativeTime(course.updatedAt)}
+                </TableCell>
                 <TableCell align="right">
                   <IconButton size="small" onClick={() => handleEdit(course)}>
                     <EditIcon />
@@ -132,7 +143,7 @@ const CourseTable: React.FC = () => {
             ))}
             {courses.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} align="center">
+                <TableCell colSpan={6} align="center">
                   No courses found.
                 </TableCell>
               </TableRow>

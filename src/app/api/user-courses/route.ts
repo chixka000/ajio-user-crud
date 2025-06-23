@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
           orderBy: { title: 'asc' }
         }
       },
-      orderBy: { name: 'asc' }
+      orderBy: { createdAt: 'desc' }
     });
 
     return NextResponse.json(usersWithCourses);

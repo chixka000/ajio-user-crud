@@ -7,6 +7,7 @@ import UserTableToolbar from './UserTableToolbar';
 import { useUserTable, User } from '../hooks/useUserTable';
 import UserForm from './UserForm';
 import CourseAssignment from './CourseAssignment';
+import { formatRelativeTime } from '../utils/dateFormat';
 
 
 // Constants
@@ -123,6 +124,8 @@ const UserTable: React.FC = () => {
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Courses</TableCell>
+              <TableCell>Created</TableCell>
+              <TableCell>Updated</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -147,6 +150,12 @@ const UserTable: React.FC = () => {
                   ) : (
                     <em>No courses</em>
                   )}
+                </TableCell>
+                <TableCell>
+                  {user.createdAt && formatRelativeTime(user.createdAt)}
+                </TableCell>
+                <TableCell>
+                  {user.updatedAt && formatRelativeTime(user.updatedAt)}
                 </TableCell>
                 <TableCell align="right">
                   <IconButton
@@ -174,7 +183,7 @@ const UserTable: React.FC = () => {
             ))}
             {paginatedUsers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} align="center">
+                <TableCell colSpan={6} align="center">
                   No users found.
                 </TableCell>
               </TableRow>
