@@ -1,15 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, 
-  TablePagination, Box, CircularProgress, Alert, IconButton, Dialog, DialogTitle, DialogContent, 
-  DialogActions, Button, Snackbar, Chip 
+import React, {useEffect, useState} from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Snackbar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CourseForm from './CourseForm';
 import CourseTableToolbar from './CourseTableToolbar';
-import { useCourseTable, Course } from '../hooks/useCourseTable';
-import { formatRelativeTime } from '../utils/dateFormat';
+import {Course, useCourseTable} from '../hooks/useCourseTable';
+import {formatRelativeTime} from '../utils/dateFormat';
 
 // Constants
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 25] as const;
@@ -29,11 +45,13 @@ const CourseTable: React.FC = () => {
     open: false, message: '', severity: 'success' 
   });
 
-  useEffect(() => {
+  const loadCourses = () => {
     let ignore = false;
-    const fetchCourses = async () => {
-      setLoading(true);
-      setError(null);
+    
+    setLoading(true);
+    setError(null);
+    
+    const performFetch = async () => {
       try {
         const response = await fetch('/api/courses');
         const data = await response.json();
@@ -48,9 +66,11 @@ const CourseTable: React.FC = () => {
       }
     };
     
-    fetchCourses();
+    performFetch();
     return () => { ignore = true; };
-  }, [localRefresh]);
+  };
+
+  useEffect(loadCourses, [localRefresh]);
 
   const handleEdit = (course: Course) => setEditCourse(course);
   const handleEditClose = () => setEditCourse(null);

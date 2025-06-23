@@ -1,8 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button,
-  FormControl, InputLabel, Select, MenuItem, Alert, Box,
-  Chip, Stack, Typography, CircularProgress
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Typography
 } from '@mui/material';
 
 interface Course {
@@ -35,11 +47,13 @@ const CourseAssignment: React.FC<CourseAssignmentProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
+    const handleDialogOpenAndUserChange = () => {
     if (open && user) {
       fetchData();
     }
-  }, [open, user]);
+    };
+
+    useEffect(handleDialogOpenAndUserChange, [open, user]);
 
   const fetchData = async () => {
     setLoading(true);

@@ -1,13 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Box, CircularProgress, Alert, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Chip, Stack } from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Snackbar,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SchoolIcon from '@mui/icons-material/School';
 import UserTableToolbar from './UserTableToolbar';
-import { useUserTable, User } from '../hooks/useUserTable';
+import {User, useUserTable} from '../hooks/useUserTable';
 import UserForm from './UserForm';
 import CourseAssignment from './CourseAssignment';
-import { formatRelativeTime } from '../utils/dateFormat';
+import {formatRelativeTime} from '../utils/dateFormat';
 
 
 // Constants
@@ -27,11 +48,13 @@ const UserTable: React.FC = () => {
   const [localRefresh, setLocalRefresh] = useState(0);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  useEffect(() => {
+  const loadUsers = () => {
     let ignore = false;
-    const fetchUsers = async () => {
-      setLoading(true);
-      setError(null);
+    
+    setLoading(true);
+    setError(null);
+    
+    const performFetch = async () => {
       try {
         const response = await fetch('/api/user-courses');
         const data = await response.json();
@@ -46,9 +69,11 @@ const UserTable: React.FC = () => {
       }
     };
     
-    fetchUsers();
+    performFetch();
     return () => { ignore = true; };
-  }, [localRefresh]);
+  };
+
+  useEffect(loadUsers, [localRefresh]);
 
   const {
     search,
