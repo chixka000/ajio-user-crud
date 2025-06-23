@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import UserTable from '@/components/UserTable';
 import CourseTable from '@/components/CourseTable';
-import CourseForm from '@/components/CourseForm';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
 
 interface TabPanelProps {
@@ -29,7 +28,6 @@ function TabPanel(props: TabPanelProps) {
 
 export default function Home() {
   const [tabValue, setTabValue] = useState(0);
-  const [courseRefresh, setCourseRefresh] = useState(0);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -73,18 +71,7 @@ export default function Home() {
         </TabPanel>
         
         <TabPanel value={tabValue} index={1}>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Create New Course
-            </Typography>
-            <CourseForm onCourseCreated={() => setCourseRefresh(r => r + 1)} />
-          </Box>
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              All Courses
-            </Typography>
-            <CourseTable key={courseRefresh} />
-          </Box>
+          <CourseTable />
         </TabPanel>
       </Box>
     </Box>

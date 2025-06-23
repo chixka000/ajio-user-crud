@@ -1,24 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, 
-  Box, CircularProgress, Alert, IconButton, Dialog, DialogTitle, DialogContent, 
+  TablePagination, Box, CircularProgress, Alert, IconButton, Dialog, DialogTitle, DialogContent, 
   DialogActions, Button, Snackbar, Chip 
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CourseForm from './CourseForm';
+import CourseTableToolbar from './CourseTableToolbar';
+import { useCourseTable, Course } from '../hooks/useCourseTable';
 import { formatRelativeTime } from '../utils/dateFormat';
 
-interface Course {
-  id: string;
-  title: string;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
-  _count: {
-    users: number;
-  };
-}
+// Constants
+const ROWS_PER_PAGE_OPTIONS = [5, 10, 25] as const;
+const SNACKBAR_AUTO_HIDE_DURATION = 3000;
+const DECIMAL_RADIX = 10;
 
 const CourseTable: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -60,12 +56,28 @@ const CourseTable: React.FC = () => {
   const handleEditClose = () => setEditCourse(null);
   const handleShowSnackbar = (message: string, severity: 'success' | 'error') => 
     setSnackbar({ open: true, message, severity });
+  
+  const {
+    search,
+    setSearch,
+    page,
+    setPage,
+    rowsPerPage,
+    setRowsPerPage,
+    filteredCourses,
+    paginatedCourses,
+  } = useCourseTable(courses);
   const handleSnackbarClose = () => setSnackbar({ open: false, message: '', severity: 'success' });
 
   const handleEditSuccess = () => {
     setLocalRefresh(r => r + 1);
     handleEditClose();
     handleShowSnackbar('Course updated successfully!', 'success');
+  };
+
+  const handleCreateSuccess = () => {
+    setLocalRefresh(r => r + 1);
+    handleShowSnackbar('Course created successfully!', 'success');
   };
 
   const handleDelete = (course: Course) => setDeleteCourse(course);
@@ -99,6 +111,11 @@ const CourseTable: React.FC = () => {
 
   return (
     <Paper elevation={0} sx={{ p: 2 }}>
+      <CourseTableToolbar
+        search={search}
+        setSearch={setSearch}
+        onCourseCreated={handleCreateSuccess}
+      />
       <TableContainer>
         <Table size="small" aria-label="courses table">
           <TableHead>
@@ -112,14 +129,14 @@ const CourseTable: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {courses.map(course => (
+            {paginatedCourses.map(course => (
               <TableRow key={course.id}>
                 <TableCell sx={{ fontWeight: 500 }}>{course.title}</TableCell>
                 <TableCell sx={{ maxWidth: 300 }}>
                   {course.description || <em>No description</em>}
                 </TableCell>
                 <TableCell>
-                  <Chip 
+                  <Chip
                     label={`${course._count.users} student${course._count.users !== 1 ? 's' : ''}`}
                     size="small"
                     color={course._count.users > 0 ? 'primary' : 'default'}
@@ -132,16 +149,23 @@ const CourseTable: React.FC = () => {
                   {course.updatedAt && formatRelativeTime(course.updatedAt)}
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton size="small" onClick={() => handleEdit(course)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleEdit(course)}
+                  >
                     <EditIcon />
                   </IconButton>
-                  <IconButton size="small" color="error" onClick={() => handleDelete(course)}>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => handleDelete(course)}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
               </TableRow>
             ))}
-            {courses.length === 0 && (
+            {paginatedCourses.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center">
                   No courses found.
@@ -151,6 +175,17 @@ const CourseTable: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Box display="flex" justifyContent="flex-end">
+        <TablePagination
+          component="div"
+          count={filteredCourses.length}
+          page={page}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, DECIMAL_RADIX))}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+        />
+      </Box>
 
       {/* Edit Course Modal */}
       <Dialog open={!!editCourse} onClose={handleEditClose} maxWidth="sm" fullWidth>
@@ -192,7 +227,7 @@ const CourseTable: React.FC = () => {
 
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={3000}
+        autoHideDuration={SNACKBAR_AUTO_HIDE_DURATION}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
