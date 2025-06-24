@@ -2,7 +2,7 @@
 import React, {useState} from 'react';
 import UserTable from '@/components/UserTable';
 import CourseTable from '@/components/CourseTable';
-import {Box, Tabs, Tab, Typography} from '@mui/material';
+import {Box, Tab, Tabs, Typography} from '@mui/material';
 
 interface TabPanelProps {
     children?: React.ReactNode;
