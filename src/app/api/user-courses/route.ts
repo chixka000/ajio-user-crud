@@ -21,11 +21,11 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json(user);
-    } catch (error: any) {
-        if (error.code === 'P2002') {
+    } catch (error: unknown) {
+        if (error instanceof Error && 'code' in error && (error as any).code === 'P2002') {
             return NextResponse.json({error: 'User is already enrolled in this course'}, {status: 400});
         }
-        return NextResponse.json({error: error.message || 'Failed to assign course'}, {status: 500});
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to assign course'}, {status: 500});
     }
 }
 
@@ -49,8 +49,8 @@ export async function DELETE(req: NextRequest) {
         });
 
         return NextResponse.json(user);
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to remove course assignment'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to remove course assignment'}, {status: 500});
     }
 }
 
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
         });
 
         return NextResponse.json(usersWithCourses);
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to fetch user courses'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to fetch user courses'}, {status: 500});
     }
 }

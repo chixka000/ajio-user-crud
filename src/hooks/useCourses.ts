@@ -20,8 +20,8 @@ export const useCourses = (refresh: number = 0) => {
                     if (Array.isArray(data)) setCourses(data);
                     else setError(data.error || 'Failed to fetch courses');
                 }
-            } catch (error: any) {
-                if (!ignore) setError(error.message);
+            } catch (error: unknown) {
+                if (!ignore) setError(error instanceof Error ? error.message : 'An error occurred');
             } finally {
                 if (!ignore) setLoading(false);
             }

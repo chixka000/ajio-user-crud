@@ -46,8 +46,8 @@ export const useCourseActions = ({onRefresh, onShowSnackbar}: UseCourseActionsPr
             onRefresh();
             handleDeleteClose();
             onShowSnackbar('Course deleted successfully!', 'success');
-        } catch (err: any) {
-            setActionError(err.message);
+        } catch (err: unknown) {
+            setActionError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setActionLoading(false);
         }

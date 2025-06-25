@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
             data: {name, email},
         });
         return NextResponse.json(user, {status: 201});
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to create user'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to create user'}, {status: 500});
     }
 }
 
@@ -20,8 +20,8 @@ export async function GET() {
     try {
         const users = await prisma.user.findMany({orderBy: {createdAt: 'desc'}});
         return NextResponse.json(users);
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to fetch users'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to fetch users'}, {status: 500});
     }
 }
 
@@ -35,8 +35,8 @@ export async function PATCH(req: NextRequest) {
             data: {name, email},
         });
         return NextResponse.json(user);
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to update user'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to update user'}, {status: 500});
     }
 }
 
@@ -46,7 +46,7 @@ export async function DELETE(req: NextRequest) {
         if (!id) return NextResponse.json({error: 'User id is required'}, {status: 400});
         await prisma.user.delete({where: {id}});
         return NextResponse.json({success: true});
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to delete user'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to delete user'}, {status: 500});
     }
 } 

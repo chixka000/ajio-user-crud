@@ -58,8 +58,8 @@ export function useCourseForm({initialValues, isEdit, onCourseCreated}: UseCours
                 setDescription('');
             }
             onCourseCreated?.();
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
         }

@@ -49,8 +49,8 @@ export const useCourseAssignment = ({user, open, onAssignmentChange}: UseCourseA
 
             setCourses(coursesData);
             setUserCourses(userCoursesData);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
         }
@@ -76,8 +76,8 @@ export const useCourseAssignment = ({user, open, onAssignmentChange}: UseCourseA
             setSelectedCourse('');
             await fetchData();
             onAssignmentChange();
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setActionLoading(false);
         }
@@ -102,8 +102,8 @@ export const useCourseAssignment = ({user, open, onAssignmentChange}: UseCourseA
 
             await fetchData();
             onAssignmentChange();
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setActionLoading(false);
         }

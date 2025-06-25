@@ -45,8 +45,8 @@ const UserTable: React.FC = () => {
                     if (Array.isArray(data)) setUsers(data);
                     else setError(data.error || 'Failed to fetch users');
                 }
-            } catch (error: any) {
-                if (!ignore) setError(error.message);
+            } catch (error: unknown) {
+                if (!ignore) setError(error instanceof Error ? error.message : 'An error occurred');
             } finally {
                 if (!ignore) setLoading(false);
             }
@@ -111,8 +111,8 @@ const UserTable: React.FC = () => {
             setLocalRefresh(r => r + 1);
             handleDeleteClose();
             handleShowSnackbar('User deleted successfully!', 'error');
-        } catch (err: any) {
-            setActionError(err.message);
+        } catch (err: unknown) {
+            setActionError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setActionLoading(false);
         }

@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
             data: {title, description},
         });
         return NextResponse.json(course, {status: 201});
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to create course'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to create course'}, {status: 500});
     }
 }
 
@@ -27,8 +27,8 @@ export async function GET() {
             }
         });
         return NextResponse.json(courses);
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to fetch courses'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to fetch courses'}, {status: 500});
     }
 }
 
@@ -42,8 +42,8 @@ export async function PATCH(req: NextRequest) {
             data: {title, description},
         });
         return NextResponse.json(course);
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to update course'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to update course'}, {status: 500});
     }
 }
 
@@ -53,7 +53,7 @@ export async function DELETE(req: NextRequest) {
         if (!id) return NextResponse.json({error: 'Course id is required'}, {status: 400});
         await prisma.course.delete({where: {id}});
         return NextResponse.json({success: true});
-    } catch (error: any) {
-        return NextResponse.json({error: error.message || 'Failed to delete course'}, {status: 500});
+    } catch (error: unknown) {
+        return NextResponse.json({error: error instanceof Error ? error.message : 'Failed to delete course'}, {status: 500});
     }
 }
