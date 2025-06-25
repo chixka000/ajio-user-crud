@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Button, Box} from '@mui/material';
 import FormField from './common/FormField';
 import ErrorAlert from './common/ErrorAlert';
+import {useCourseForm} from '@/hooks/useCourseForm';
 
 interface Course {
     id: string;
@@ -16,49 +17,15 @@ interface CourseFormProps {
 }
 
 const CourseForm: React.FC<CourseFormProps> = ({onCourseCreated, initialValues, isEdit = false}) => {
-    const [title, setTitle] = useState(initialValues?.title || '');
-    const [description, setDescription] = useState(initialValues?.description || '');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!title.trim()) {
-            setError('Title is required');
-            return;
-        }
-
-        setLoading(true);
-        setError(null);
-
-        try {
-            const method = isEdit ? 'PATCH' : 'POST';
-            const body = isEdit
-                ? JSON.stringify({id: initialValues?.id, title: title.trim(), description: description.trim() || null})
-                : JSON.stringify({title: title.trim(), description: description.trim() || null});
-
-            const res = await fetch('/api/courses', {
-                method,
-                headers: {'Content-Type': 'application/json'},
-                body,
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || `Failed to ${isEdit ? 'update' : 'create'} course`);
-            }
-
-            if (!isEdit) {
-                setTitle('');
-                setDescription('');
-            }
-            onCourseCreated?.();
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const {
+        title,
+        setTitle,
+        description,
+        setDescription,
+        loading,
+        error,
+        handleSubmit,
+    } = useCourseForm({initialValues, isEdit, onCourseCreated});
 
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
