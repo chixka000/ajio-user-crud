@@ -110,11 +110,13 @@ export const useCourseAssignment = ({user, open, onAssignmentChange}: UseCourseA
     };
 
     // Fetch data when dialog opens and user changes
-    useEffect(() => {
+    const fetchDataWhenDialogOpens = () => {
         if (open && user) {
             fetchData();
         }
-    }, [open, user]);
+    };
+
+    useEffect(fetchDataWhenDialogOpens, [open, user]);
 
     const availableCourses = courses.filter(
         course => !userCourses.some(userCourse => userCourse.id === course.id)

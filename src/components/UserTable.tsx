@@ -94,6 +94,18 @@ const UserTable: React.FC = () => {
 
     const handleDelete = (user: User) => setDeleteUser(user);
     const handleDeleteClose = () => setDeleteUser(null);
+
+    // Named functions for button handlers
+    const createCourseAssignHandler = (user: User) => () => handleCourseAssign(user);
+    const createEditHandler = (user: User) => () => handleEdit(user);
+    const createDeleteHandler = (user: User) => () => handleDelete(user);
+
+    // Named function for user creation success
+    const handleUserCreationSuccess = () => {
+        setLocalRefresh(r => r + 1);
+        handleShowSnackbar('User created successfully!', 'success');
+    };
+
     const handleDeleteConfirm = async () => {
         if (!deleteUser) return;
         setActionLoading(true);
@@ -159,9 +171,9 @@ const UserTable: React.FC = () => {
             render: (user: User) => (
                 <ActionButtons
                     buttons={[
-                        createCourseButton(() => handleCourseAssign(user)),
-                        createEditButton(() => handleEdit(user)),
-                        createDeleteButton(() => handleDelete(user)),
+                        createCourseButton(createCourseAssignHandler(user)),
+                        createEditButton(createEditHandler(user)),
+                        createDeleteButton(createDeleteHandler(user)),
                     ]}
                 />
             ),
@@ -188,10 +200,7 @@ const UserTable: React.FC = () => {
                     <UserTableToolbar
                         search={search}
                         setSearch={setSearch}
-                        onUserCreated={() => {
-                            setLocalRefresh(r => r + 1);
-                            handleShowSnackbar('User created successfully!', 'success');
-                        }}
+                        onUserCreated={handleUserCreationSuccess}
                     />
                 }
             />

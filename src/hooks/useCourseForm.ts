@@ -18,13 +18,15 @@ export function useCourseForm({initialValues, isEdit, onCourseCreated}: UseCours
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Update form when initial values change
-    useEffect(() => {
+
+    const updateFormWithInitialValues = () => {
         if (initialValues) {
             setTitle(initialValues.title || '');
             setDescription(initialValues.description || '');
         }
-    }, [initialValues]);
+    };
+
+    useEffect(updateFormWithInitialValues, [initialValues]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

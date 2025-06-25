@@ -20,7 +20,7 @@ export function useCourseTable(courses: Course[]) {
     const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
 
     // Filtered and searched courses
-    const filteredCourses = useMemo(() => {
+    const calculateFilteredCourses = () => {
         const filtered = courses.filter(course => {
             const searchLower = search.toLowerCase();
             return (
@@ -31,13 +31,17 @@ export function useCourseTable(courses: Course[]) {
         // Reset to first page when search changes
         setPage(0);
         return filtered;
-    }, [courses, search]);
+    };
+
+    const filteredCourses = useMemo(calculateFilteredCourses, [courses, search]);
 
     // Paginated courses
-    const paginatedCourses = useMemo(() => {
+    const calculatePaginatedCourses = () => {
         const start = page * rowsPerPage;
         return filteredCourses.slice(start, start + rowsPerPage);
-    }, [filteredCourses, page, rowsPerPage]);
+    };
+
+    const paginatedCourses = useMemo(calculatePaginatedCourses, [filteredCourses, page, rowsPerPage]);
 
     // Handler for changing rows per page
     const handleRowsPerPageChange = (value: number) => {

@@ -26,17 +26,21 @@ export function useUserTable(users: User[]) {
     const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
 
     // Filtered and searched users
-    const filteredUsers = useMemo(() => {
+    const calculateFilteredUsers = () => {
         return users.filter(user =>
             user.name.toLowerCase().includes(search.toLowerCase())
         );
-    }, [users, search]);
+    };
+
+    const filteredUsers = useMemo(calculateFilteredUsers, [users, search]);
 
     // Paginated users
-    const paginatedUsers = useMemo(() => {
+    const calculatePaginatedUsers = () => {
         const start = page * rowsPerPage;
         return filteredUsers.slice(start, start + rowsPerPage);
-    }, [filteredUsers, page, rowsPerPage]);
+    };
+
+    const paginatedUsers = useMemo(calculatePaginatedUsers, [filteredUsers, page, rowsPerPage]);
 
     // Handler for changing rows per page
     const handleRowsPerPageChange = (value: number) => {

@@ -23,6 +23,9 @@ const UserTableToolbar: React.FC<UserTableToolbarProps> = ({
         handleClose();
     };
 
+    // Named function for search input change
+    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => setSearch(event.target.value);
+
     return (
         <Box
             mb={2}
@@ -54,7 +57,7 @@ const UserTableToolbar: React.FC<UserTableToolbarProps> = ({
                 variant="outlined"
                 placeholder="Search by name"
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={handleSearchChange}
                 sx={{width: {xs: '100%', sm: 240}, minWidth: {sm: 240}}}
                 inputProps={{"aria-label": "search users by name"}}
             />
