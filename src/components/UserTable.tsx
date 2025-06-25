@@ -1,40 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {
-    Alert,
-    Box,
-    Button,
-    Chip,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    Paper,
-    Snackbar,
-    Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SchoolIcon from '@mui/icons-material/School';
+import {Alert, Chip, Stack} from '@mui/material';
 import UserTableToolbar from './UserTableToolbar';
 import {User, useUserTable} from '@/hooks/useUserTable';
 import UserForm from './UserForm';
 import CourseAssignment from './CourseAssignment';
 import {formatRelativeTime} from '@/utils/dateFormat';
+import DataTable from './common/DataTable';
+import FormDialog from './common/FormDialog';
+import ConfirmationDialog from './common/ConfirmationDialog';
+import NotificationSnackbar from './common/NotificationSnackbar';
+import ActionButtons, {createCourseButton, createDeleteButton, createEditButton} from './common/ActionButtons';
 
-
-// Constants
-const ROWS_PER_PAGE_OPTIONS = [5, 10, 25] as const;
-const SNACKBAR_AUTO_HIDE_DURATION = 3000;
-const DECIMAL_RADIX = 10;
 
 const UserTable: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -139,136 +115,111 @@ const UserTable: React.FC = () => {
         }
     };
 
-    if (loading) return <Box display="flex" justifyContent="center" p={4}><CircularProgress/></Box>;
     if (error) return <Alert severity="error">{error}</Alert>;
 
-    return (
-        <Paper elevation={0} sx={{p: 2}}>
-            <UserTableToolbar
-                search={search}
-                setSearch={setSearch}
-                onUserCreated={() => {
-                    setLocalRefresh(r => r + 1);
-                    handleShowSnackbar('User created successfully!', 'success');
-                }}
-            />
-            <TableContainer>
-                <Table size="small" aria-label="users table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Courses</TableCell>
-                            <TableCell>Created</TableCell>
-                            <TableCell>Updated</TableCell>
-                            <TableCell align="right">Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {paginatedUsers.map(user => (
-                            <TableRow key={user.id}>
-                                <TableCell>{user.name}</TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell>
-                                    {user.courses && user.courses.length > 0 ? (
-                                        <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
-                                            {user.courses.map(course => (
-                                                <Chip
-                                                    key={course.id}
-                                                    label={course.title}
-                                                    size="small"
-                                                    color="primary"
-                                                    variant="outlined"
-                                                />
-                                            ))}
-                                        </Stack>
-                                    ) : (
-                                        <em>No courses</em>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    {user.createdAt && formatRelativeTime(user.createdAt)}
-                                </TableCell>
-                                <TableCell>
-                                    {user.updatedAt && formatRelativeTime(user.updatedAt)}
-                                </TableCell>
-                                <TableCell align="right">
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => handleCourseAssign(user)}
-                                        title="Manage Courses"
-                                    >
-                                        <SchoolIcon/>
-                                    </IconButton>
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => handleEdit(user)}
-                                    >
-                                        <EditIcon/>
-                                    </IconButton>
-                                    <IconButton
-                                        size="small"
-                                        color="error"
-                                        onClick={() => handleDelete(user)}
-                                    >
-                                        <DeleteIcon/>
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
+    const columns = [
+        {key: 'name', label: 'Name'},
+        {key: 'email', label: 'Email'},
+        {
+            key: 'courses',
+            label: 'Courses',
+            render: (user: User) => (
+                user.courses && user.courses.length > 0 ? (
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
+                        {user.courses.map(course => (
+                            <Chip
+                                key={course.id}
+                                label={course.title}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                            />
                         ))}
-                        {paginatedUsers.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={6} align="center">
-                                    No users found.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <Box display="flex" justifyContent="flex-end">
-                <TablePagination
-                    component="div"
-                    count={filteredUsers.length}
-                    page={page}
-                    onPageChange={(event, newPage) => setPage(newPage)}
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, DECIMAL_RADIX))}
-                    rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+                    </Stack>
+                ) : (
+                    <em>No courses</em>
+                )
+            ),
+        },
+        {
+            key: 'createdAt',
+            label: 'Created',
+            render: (user: User) => user.createdAt && formatRelativeTime(user.createdAt),
+        },
+        {
+            key: 'updatedAt',
+            label: 'Updated',
+            render: (user: User) => user.updatedAt && formatRelativeTime(user.updatedAt),
+        },
+        {
+            key: 'actions',
+            label: 'Actions',
+            align: 'right' as const,
+            render: (user: User) => (
+                <ActionButtons
+                    buttons={[
+                        createCourseButton(() => handleCourseAssign(user)),
+                        createEditButton(() => handleEdit(user)),
+                        createDeleteButton(() => handleDelete(user)),
+                    ]}
                 />
-            </Box>
-            {/* Edit User Modal */}
-            <Dialog open={!!editUser} onClose={handleEditClose} maxWidth="xs" fullWidth>
-                <DialogTitle>Edit User</DialogTitle>
-                <DialogContent>
-                    {editUser && (
-                        <UserForm
-                            onUserCreated={handleEditSuccess}
-                            initialValues={editUser}
-                            isEdit
-                        />
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleEditClose}>Cancel</Button>
-                </DialogActions>
-            </Dialog>
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={!!deleteUser} onClose={handleDeleteClose} maxWidth="xs" fullWidth>
-                <DialogTitle>Delete User</DialogTitle>
-                <DialogContent>
-                    {actionError && <Alert severity="error">{actionError}</Alert>}
-                    Are you sure you want to delete user <b>{deleteUser?.name}</b>?
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleDeleteClose} disabled={actionLoading}>Cancel</Button>
-                    <Button onClick={handleDeleteConfirm} color="error" disabled={actionLoading}>
-                        {actionLoading ? 'Deleting...' : 'Delete'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            ),
+        },
+    ];
 
-            {/* Course Assignment Modal */}
+    return (
+        <>
+            <DataTable
+                data={paginatedUsers}
+                columns={columns}
+                loading={loading}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                totalCount={filteredUsers.length}
+                onPageChange={setPage}
+                onRowsPerPageChange={setRowsPerPage}
+                getRowKey={(user) => user.id}
+                emptyMessage="No users found."
+                tableProps={{'aria-label': 'users table'}}
+                toolbar={
+                    <UserTableToolbar
+                        search={search}
+                        setSearch={setSearch}
+                        onUserCreated={() => {
+                            setLocalRefresh(r => r + 1);
+                            handleShowSnackbar('User created successfully!', 'success');
+                        }}
+                    />
+                }
+            />
+            <FormDialog
+                open={!!editUser}
+                onClose={handleEditClose}
+                title="Edit User"
+                maxWidth="xs"
+                fullWidth
+            >
+                {editUser && (
+                    <UserForm
+                        onUserCreated={handleEditSuccess}
+                        initialValues={editUser}
+                        isEdit
+                    />
+                )}
+            </FormDialog>
+
+            <ConfirmationDialog
+                open={!!deleteUser}
+                onClose={handleDeleteClose}
+                onConfirm={handleDeleteConfirm}
+                title="Delete User"
+                message={<>Are you sure you want to delete user <b>{deleteUser?.name}</b>?</>}
+                confirmText="Delete"
+                confirmColor="error"
+                loading={actionLoading}
+                error={actionError}
+            />
+
             <CourseAssignment
                 open={!!courseAssignUser}
                 onClose={handleCourseAssignClose}
@@ -276,17 +227,13 @@ const UserTable: React.FC = () => {
                 onAssignmentChange={handleAssignmentChange}
             />
 
-            <Snackbar
+            <NotificationSnackbar
                 open={snackbar.open}
-                autoHideDuration={SNACKBAR_AUTO_HIDE_DURATION}
+                message={snackbar.message}
+                severity={snackbar.severity}
                 onClose={handleSnackbarClose}
-                anchorOrigin={{vertical: 'top', horizontal: 'center'}}
-            >
-                <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{width: '100%'}}>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
-        </Paper>
+            />
+        </>
     );
 };
 

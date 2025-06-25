@@ -1,6 +1,7 @@
 import React, {useState} from "react";
-import {Box, Button, Dialog, TextField, DialogTitle, DialogContent, DialogActions} from "@mui/material";
+import {Box, Button, TextField} from "@mui/material";
 import UserForm from '@/components/UserForm';
+import FormDialog from '@/components/common/FormDialog';
 
 interface UserTableToolbarProps {
     search: string;
@@ -31,20 +32,15 @@ const UserTableToolbar: React.FC<UserTableToolbarProps> = ({
             gap={2}
             justifyContent="flex-end"
         >
-            <Dialog
+            <FormDialog
                 open={open}
                 onClose={handleClose}
+                title="Add User"
                 maxWidth="xs"
                 fullWidth
             >
-                <DialogTitle>Add User</DialogTitle>
-                <DialogContent>
-                    <UserForm onUserCreated={handleUserCreatedLocal}/>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                </DialogActions>
-            </Dialog>
+                <UserForm onUserCreated={handleUserCreatedLocal}/>
+            </FormDialog>
             <Button
                 variant="contained"
                 color="primary"

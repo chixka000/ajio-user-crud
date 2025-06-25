@@ -1,6 +1,7 @@
 import React, {useState} from "react";
-import {Box, Button, Dialog, TextField, DialogTitle, DialogContent, DialogActions} from "@mui/material";
+import {Box, Button, TextField} from "@mui/material";
 import CourseForm from '@/components/CourseForm';
+import FormDialog from '@/components/common/FormDialog';
 
 interface CourseTableToolbarProps {
     search: string;
@@ -31,20 +32,15 @@ const CourseTableToolbar: React.FC<CourseTableToolbarProps> = ({
             gap={2}
             justifyContent="flex-end"
         >
-            <Dialog
+            <FormDialog
                 open={open}
                 onClose={handleClose}
+                title="Add Course"
                 maxWidth="sm"
                 fullWidth
             >
-                <DialogTitle>Add Course</DialogTitle>
-                <DialogContent>
-                    <CourseForm onCourseCreated={handleCourseCreatedLocal}/>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                </DialogActions>
-            </Dialog>
+                <CourseForm onCourseCreated={handleCourseCreatedLocal}/>
+            </FormDialog>
             <Button
                 variant="contained"
                 color="primary"
