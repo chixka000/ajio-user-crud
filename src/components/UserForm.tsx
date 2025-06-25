@@ -1,7 +1,9 @@
 import React from 'react';
-import {Alert, Box, Button, TextField} from '@mui/material';
+import {Alert, Box, Button} from '@mui/material';
 import {User} from '@/hooks/useUserTable';
 import {useUserForm} from '@/hooks/useUserForm';
+import FormField from './common/FormField';
+import ErrorAlert from './common/ErrorAlert';
 
 interface UserFormProps {
     onUserCreated?: () => void;
@@ -32,24 +34,22 @@ const UserForm: React.FC<UserFormProps> = ({onUserCreated, initialValues, isEdit
             gap={2}
             maxWidth={400}
         >
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && <ErrorAlert message={error}/>}
             {success && <Alert severity="success">User {isEdit ? 'updated' : 'created'} successfully!</Alert>}
-            <TextField
+            <FormField
                 label="Name"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
-                disabled={loading}
-                fullWidth
+                onChange={setName}
+                loading={loading}
                 required
             />
-            <TextField
+            <FormField
                 label="Email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                disabled={loading}
+                onChange={setEmail}
+                loading={loading}
                 required
                 type="email"
-                fullWidth
             />
             <Button
                 type="submit"

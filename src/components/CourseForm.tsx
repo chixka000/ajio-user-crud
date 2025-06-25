@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
-import {TextField, Button, Box, Alert} from '@mui/material';
+import {Button, Box} from '@mui/material';
+import FormField from './common/FormField';
+import ErrorAlert from './common/ErrorAlert';
 
 interface Course {
     id: string;
@@ -60,24 +62,24 @@ const CourseForm: React.FC<CourseFormProps> = ({onCourseCreated, initialValues, 
 
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && <ErrorAlert message={error}/>}
 
-            <TextField
+            <FormField
                 label="Course Title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={setTitle}
                 required
-                disabled={loading}
+                loading={loading}
                 size="small"
             />
 
-            <TextField
+            <FormField
                 label="Description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={setDescription}
                 multiline
                 rows={3}
-                disabled={loading}
+                loading={loading}
                 size="small"
             />
 

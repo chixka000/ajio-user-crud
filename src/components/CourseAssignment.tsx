@@ -4,7 +4,6 @@ import {
     Box,
     Button,
     Chip,
-    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -16,6 +15,11 @@ import {
     Stack,
     Typography
 } from '@mui/material';
+import SchoolIcon from '@mui/icons-material/School';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import Loading from './common/Loading';
+import ErrorAlert from './common/ErrorAlert';
+import EmptyState from './common/EmptyState';
 
 interface Course {
     id: string;
@@ -146,12 +150,10 @@ const CourseAssignment: React.FC<CourseAssignmentProps> = ({
             </DialogTitle>
             <DialogContent>
                 {loading ? (
-                    <Box display="flex" justifyContent="center" p={4}>
-                        <CircularProgress/>
-                    </Box>
+                    <Loading/>
                 ) : (
                     <Box sx={{display: 'flex', flexDirection: 'column', gap: 3, mt: 1}}>
-                        {error && <Alert severity="error">{error}</Alert>}
+                        {error && <ErrorAlert message={error}/>}
 
                         {/* Current Courses */}
                         <Box>
@@ -171,9 +173,11 @@ const CourseAssignment: React.FC<CourseAssignmentProps> = ({
                                     ))}
                                 </Stack>
                             ) : (
-                                <Typography color="text.secondary">
-                                    No courses assigned yet.
-                                </Typography>
+                                <EmptyState
+                                    message="No courses assigned yet"
+                                    description="Start by assigning some courses to this user"
+                                    icon={<SchoolIcon fontSize="large"/>}
+                                />
                             )}
                         </Box>
 
@@ -209,9 +213,11 @@ const CourseAssignment: React.FC<CourseAssignmentProps> = ({
                                     </Button>
                                 </Box>
                             ) : (
-                                <Typography color="text.secondary">
-                                    All available courses have been assigned.
-                                </Typography>
+                                <EmptyState
+                                    message="All courses assigned"
+                                    description="This user has been assigned to all available courses"
+                                    icon={<AssignmentIcon fontSize="large"/>}
+                                />
                             )}
                         </Box>
                     </Box>

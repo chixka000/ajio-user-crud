@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     Box,
-    CircularProgress,
     Paper,
     Table,
     TableBody,
@@ -12,6 +11,8 @@ import {
     TableProps,
     TableRow
 } from '@mui/material';
+import Loading from './Loading';
+import EmptyState from './EmptyState';
 
 interface Column<T> {
     key: keyof T | string;
@@ -32,6 +33,8 @@ interface DataTableProps<T> {
     onRowsPerPageChange: (rowsPerPage: number) => void;
     rowsPerPageOptions?: readonly number[];
     emptyMessage?: string;
+    emptyDescription?: string;
+    emptyIcon?: React.ReactNode;
     tableProps?: Partial<TableProps>;
     getRowKey: (item: T) => string | number;
     toolbar?: React.ReactNode;
@@ -40,21 +43,23 @@ interface DataTableProps<T> {
 const DECIMAL_RADIX = 10;
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [5, 10, 25] as const;
 
-const DataTable = <T,>({
-    data,
-    columns,
-    loading = false,
-    page,
-    rowsPerPage,
-    totalCount,
-    onPageChange,
-    onRowsPerPageChange,
-    rowsPerPageOptions = DEFAULT_ROWS_PER_PAGE_OPTIONS,
-    emptyMessage = 'No data found.',
-    tableProps = {},
-    getRowKey,
-    toolbar,
-}: DataTableProps<T>) => {
+const DataTable = <T, >({
+                            data,
+                            columns,
+                            loading = false,
+                            page,
+                            rowsPerPage,
+                            totalCount,
+                            onPageChange,
+                            onRowsPerPageChange,
+                            rowsPerPageOptions = DEFAULT_ROWS_PER_PAGE_OPTIONS,
+                            emptyMessage = 'No data found.',
+                            emptyDescription,
+                            emptyIcon,
+                            tableProps = {},
+                            getRowKey,
+                            toolbar,
+                        }: DataTableProps<T>) => {
     const handlePageChange = (event: unknown, newPage: number) => {
         onPageChange(newPage);
     };
@@ -66,9 +71,7 @@ const DataTable = <T,>({
     if (loading) {
         return (
             <Paper elevation={0} sx={{p: 2}}>
-                <Box display="flex" justifyContent="center" p={4}>
-                    <CircularProgress/>
-                </Box>
+                <Loading/>
             </Paper>
         );
     }
@@ -76,40 +79,41 @@ const DataTable = <T,>({
     return (
         <Paper elevation={0} sx={{p: 2}}>
             {toolbar}
-            <TableContainer>
-                <Table size="small" {...tableProps}>
-                    <TableHead>
-                        <TableRow>
-                            {columns.map((column, index) => (
-                                <TableCell key={index} align={column.align || 'left'}>
-                                    {column.label}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {data.map((item) => (
-                            <TableRow key={getRowKey(item)}>
+            {data.length === 0 ? (
+                <EmptyState
+                    message={emptyMessage}
+                    description={emptyDescription || "Try adjusting your search criteria or add new items"}
+                    icon={emptyIcon}
+                />
+            ) : (
+                <TableContainer>
+                    <Table size="small" {...tableProps}>
+                        <TableHead>
+                            <TableRow>
                                 {columns.map((column, index) => (
                                     <TableCell key={index} align={column.align || 'left'}>
-                                        {column.render 
-                                            ? column.render(item)
-                                            : String((item as any)[column.key] || '')
-                                        }
+                                        {column.label}
                                     </TableCell>
                                 ))}
                             </TableRow>
-                        ))}
-                        {data.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} align="center">
-                                    {emptyMessage}
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {data.map((item) => (
+                                <TableRow key={getRowKey(item)}>
+                                    {columns.map((column, index) => (
+                                        <TableCell key={index} align={column.align || 'left'}>
+                                            {column.render
+                                                ? column.render(item)
+                                                : String((item as any)[column.key] || '')
+                                            }
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
             <Box display="flex" justifyContent="flex-end">
                 <TablePagination
                     component="div"

@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Chip, Stack} from '@mui/material';
 import UserTableToolbar from './UserTableToolbar';
 import {User, useUserTable} from '@/hooks/useUserTable';
 import UserForm from './UserForm';
@@ -10,6 +9,10 @@ import FormDialog from './common/FormDialog';
 import ConfirmationDialog from './common/ConfirmationDialog';
 import NotificationSnackbar from './common/NotificationSnackbar';
 import ActionButtons, {createCourseButton, createDeleteButton, createEditButton} from './common/ActionButtons';
+import ErrorAlert from './common/ErrorAlert';
+import ChipList from './common/ChipList';
+import SchoolIcon from '@mui/icons-material/School';
+import PersonIcon from '@mui/icons-material/Person';
 
 
 const UserTable: React.FC = () => {
@@ -115,7 +118,7 @@ const UserTable: React.FC = () => {
         }
     };
 
-    if (error) return <Alert severity="error">{error}</Alert>;
+    if (error) return <ErrorAlert message={error}/>;
 
     const columns = [
         {key: 'name', label: 'Name'},
@@ -124,21 +127,19 @@ const UserTable: React.FC = () => {
             key: 'courses',
             label: 'Courses',
             render: (user: User) => (
-                user.courses && user.courses.length > 0 ? (
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
-                        {user.courses.map(course => (
-                            <Chip
-                                key={course.id}
-                                label={course.title}
-                                size="small"
-                                color="primary"
-                                variant="outlined"
-                            />
-                        ))}
-                    </Stack>
-                ) : (
-                    <em>No courses</em>
-                )
+                <ChipList
+                    items={user.courses?.map(course => ({
+                        id: course.id,
+                        label: course.title,
+                    })) || []}
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                    emptyText="No courses assigned"
+                    emptyDescription="Click the school icon to assign courses"
+                    emptyIcon={<SchoolIcon/>}
+                    useCompactEmptyState={true}
+                />
             ),
         },
         {
@@ -179,7 +180,9 @@ const UserTable: React.FC = () => {
                 onPageChange={setPage}
                 onRowsPerPageChange={setRowsPerPage}
                 getRowKey={(user) => user.id}
-                emptyMessage="No users found."
+                emptyMessage="No users found"
+                emptyDescription="Create your first user to get started"
+                emptyIcon={<PersonIcon fontSize="large"/>}
                 tableProps={{'aria-label': 'users table'}}
                 toolbar={
                     <UserTableToolbar

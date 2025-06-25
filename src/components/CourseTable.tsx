@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {Alert, Chip} from '@mui/material';
 import CourseForm from './CourseForm';
 import CourseTableToolbar from './CourseTableToolbar';
 import {Course, useCourseTable} from '@/hooks/useCourseTable';
@@ -12,15 +11,18 @@ import FormDialog from './common/FormDialog';
 import ConfirmationDialog from './common/ConfirmationDialog';
 import NotificationSnackbar from './common/NotificationSnackbar';
 import ActionButtons, {createDeleteButton, createEditButton} from './common/ActionButtons';
+import ErrorAlert from './common/ErrorAlert';
+import StatusChip from './common/StatusChip';
+import SchoolIcon from '@mui/icons-material/School';
 
 const CourseTable: React.FC = () => {
     const [localRefresh, setLocalRefresh] = useState(0);
 
     const {courses, loading, error} = useCourses(localRefresh);
     const {snackbar, showSnackbar, hideSnackbar} = useSnackbar();
-    
+
     const refreshCourses = () => setLocalRefresh(r => r + 1);
-    
+
     const {
         editCourse,
         deleteCourse,
@@ -49,23 +51,25 @@ const CourseTable: React.FC = () => {
         paginatedCourses,
     } = useCourseTable(courses);
 
-    if (error) return <Alert severity="error">{error}</Alert>;
+    if (error) return <ErrorAlert message={error}/>;
 
     const columns = [
         {key: 'title', label: 'Title', render: (course: Course) => <strong>{course.title}</strong>},
         {
-            key: 'description', 
-            label: 'Description', 
+            key: 'description',
+            label: 'Description',
             render: (course: Course) => course.description || <em>No description</em>
         },
         {
             key: 'enrolledStudents',
             label: 'Enrolled Students',
             render: (course: Course) => (
-                <Chip
-                    label={`${course._count.users} student${course._count.users !== 1 ? 's' : ''}`}
+                <StatusChip
+                    count={course._count.users}
+                    singularLabel="student"
                     size="small"
-                    color={course._count.users > 0 ? 'primary' : 'default'}
+                    colorWhenEmpty="default"
+                    colorWhenFilled="primary"
                 />
             ),
         },
@@ -106,7 +110,9 @@ const CourseTable: React.FC = () => {
                 onPageChange={setPage}
                 onRowsPerPageChange={setRowsPerPage}
                 getRowKey={(course) => course.id}
-                emptyMessage="No courses found."
+                emptyMessage="No courses found"
+                emptyDescription="Create your first course to get started"
+                emptyIcon={<SchoolIcon fontSize="large"/>}
                 tableProps={{'aria-label': 'courses table'}}
                 toolbar={
                     <CourseTableToolbar
