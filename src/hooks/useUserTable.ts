@@ -1,4 +1,5 @@
 import {useState, useMemo, useEffect, useCallback} from 'react';
+import { useRefresh } from './useRefresh';
 
 export interface Course {
     id: string;
@@ -76,7 +77,7 @@ export function useUserTableActions() {
     const [courseAssignUser, setCourseAssignUser] = useState<User | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
-    const [localRefresh, setLocalRefresh] = useState(0);
+    const { refreshCounter, refresh } = useRefresh();
     const [snackbar, setSnackbar] = useState<SnackbarState>({
         open: false,
         message: '',
@@ -124,7 +125,7 @@ export function useUserTableActions() {
         return cleanup;
     };
 
-    useEffect(setupLoadUsers, [loadUsers, localRefresh]);
+    useEffect(setupLoadUsers, [loadUsers, refreshCounter]);
 
     // Dialog handlers
     const handleEdit = useCallback((user: User) => setEditUser(user), []);
@@ -145,19 +146,19 @@ export function useUserTableActions() {
 
     // Success handlers
     const handleEditSuccess = useCallback(() => {
-        setLocalRefresh(r => r + 1);
+        refresh();
         handleEditClose();
         handleShowSnackbar('User updated successfully!', 'success');
-    }, [handleEditClose, handleShowSnackbar]);
+    }, [refresh, handleEditClose, handleShowSnackbar]);
 
     const handleUserCreationSuccess = useCallback(() => {
-        setLocalRefresh(r => r + 1);
+        refresh();
         handleShowSnackbar('User created successfully!', 'success');
-    }, [handleShowSnackbar]);
+    }, [refresh, handleShowSnackbar]);
 
     const handleAssignmentChange = useCallback(() => {
-        setLocalRefresh(r => r + 1);
-    }, []);
+        refresh();
+    }, [refresh]);
 
     // Delete confirmation handler
     const handleDeleteConfirm = useCallback(async () => {
@@ -178,7 +179,7 @@ export function useUserTableActions() {
                 throw new Error(data.error || 'Failed to delete user');
             }
 
-            setLocalRefresh(r => r + 1);
+            refresh();
             handleDeleteClose();
             handleShowSnackbar('User deleted successfully!', 'error');
         } catch (err: unknown) {
@@ -186,7 +187,7 @@ export function useUserTableActions() {
         } finally {
             setActionLoading(false);
         }
-    }, [deleteUser, handleDeleteClose, handleShowSnackbar]);
+    }, [deleteUser, refresh, handleDeleteClose, handleShowSnackbar]);
 
     // Button handler creators
     const createCourseAssignHandler = useCallback((user: User) => () => handleCourseAssign(user), [handleCourseAssign]);

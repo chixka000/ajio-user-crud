@@ -11,6 +11,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 6. Make every task and code change you do as simple as possible. We want to avoid making any massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.
 7. Finally, add a review section to the todo.md file with a summary of the changes you made and any other relevant information.
 
+## Before Creating a code always check the following standard
+•	Verify if there is any problematic code.
+•	Check for any duplicated logic.
+•	Ensure the code follows the coding guidelines.
+•	Confirm there is no unnecessarily fat or bloated code.
+
 
 ## Development Commands
 

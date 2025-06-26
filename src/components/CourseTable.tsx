@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React from 'react';
 import CourseForm from './CourseForm';
 import CourseTableToolbar from './CourseTableToolbar';
 import {Course, useCourseTable} from '@/hooks/useCourseTable';
 import {useCourses} from '@/hooks/useCourses';
 import {useCourseActions} from '@/hooks/useCourseActions';
 import {useSnackbar} from '@/hooks/useSnackbar';
+import {useRefresh} from '@/hooks/useRefresh';
 import {formatRelativeTime} from '@/utils/dateFormat';
 import DataTable from './common/DataTable';
 import FormDialog from './common/FormDialog';
@@ -16,12 +17,10 @@ import StatusChip from './common/StatusChip';
 import SchoolIcon from '@mui/icons-material/School';
 
 const CourseTable: React.FC = () => {
-    const [localRefresh, setLocalRefresh] = useState(0);
+    const {refreshCounter, refresh} = useRefresh();
 
-    const {courses, loading, error} = useCourses(localRefresh);
+    const {courses, loading, error} = useCourses(refreshCounter);
     const {snackbar, showSnackbar, hideSnackbar} = useSnackbar();
-
-    const refreshCourses = () => setLocalRefresh(r => r + 1);
 
     const {
         editCourse,
@@ -36,7 +35,7 @@ const CourseTable: React.FC = () => {
         handleDeleteClose,
         handleDeleteConfirm,
     } = useCourseActions({
-        onRefresh: refreshCourses,
+        onRefresh: refresh,
         onShowSnackbar: showSnackbar,
     });
 
