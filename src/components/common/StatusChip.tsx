@@ -11,17 +11,17 @@ interface StatusChipProps {
 }
 
 const StatusChip: React.FC<StatusChipProps> = ({
-    count,
-    singularLabel,
-    pluralLabel,
-    size = 'small',
-    colorWhenEmpty = 'default',
-    colorWhenFilled = 'primary',
-}) => {
-    const label = count === 1 
-        ? `${count} ${singularLabel}` 
+                                                   count,
+                                                   singularLabel,
+                                                   pluralLabel,
+                                                   size = 'small',
+                                                   colorWhenEmpty = 'default',
+                                                   colorWhenFilled = 'primary',
+                                               }) => {
+    const label = count === 1
+        ? `${count} ${singularLabel}`
         : `${count} ${pluralLabel || singularLabel + 's'}`;
-    
+
     const color = count > 0 ? colorWhenFilled : colorWhenEmpty;
 
     return (

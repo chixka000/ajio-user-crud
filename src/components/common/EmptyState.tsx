@@ -8,10 +8,10 @@ interface EmptyStateProps {
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
-    message,
-    description,
-    icon,
-}) => {
+                                                   message,
+                                                   description,
+                                                   icon,
+                                               }) => {
     return (
         <Box
             display="flex"

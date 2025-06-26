@@ -19,15 +19,15 @@ interface FormDialogProps extends Omit<DialogProps, 'open' | 'onClose'> {
 }
 
 const FormDialog: React.FC<FormDialogProps> = ({
-    open,
-    onClose,
-    title,
-    children,
-    showCancel = true,
-    cancelText = 'Cancel',
-    actions,
-    ...dialogProps
-}) => {
+                                                   open,
+                                                   onClose,
+                                                   title,
+                                                   children,
+                                                   showCancel = true,
+                                                   cancelText = 'Cancel',
+                                                   actions,
+                                                   ...dialogProps
+                                               }) => {
     return (
         <Dialog open={open} onClose={onClose} {...dialogProps}>
             <DialogTitle>{title}</DialogTitle>

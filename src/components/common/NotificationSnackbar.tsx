@@ -14,13 +14,13 @@ const DEFAULT_AUTO_HIDE_DURATION = 3000;
 const DEFAULT_ANCHOR_ORIGIN: SnackbarOrigin = {vertical: 'top', horizontal: 'center'};
 
 const NotificationSnackbar: React.FC<NotificationSnackbarProps> = ({
-    open,
-    message,
-    severity,
-    onClose,
-    autoHideDuration = DEFAULT_AUTO_HIDE_DURATION,
-    anchorOrigin = DEFAULT_ANCHOR_ORIGIN,
-}) => {
+                                                                       open,
+                                                                       message,
+                                                                       severity,
+                                                                       onClose,
+                                                                       autoHideDuration = DEFAULT_AUTO_HIDE_DURATION,
+                                                                       anchorOrigin = DEFAULT_ANCHOR_ORIGIN,
+                                                                   }) => {
     return (
         <Snackbar
             open={open}

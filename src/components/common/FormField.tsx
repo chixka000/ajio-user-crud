@@ -8,13 +8,13 @@ interface FormFieldProps extends Omit<TextFieldProps, 'onChange'> {
 }
 
 const FormField: React.FC<FormFieldProps> = ({
-    value,
-    onChange,
-    loading = false,
-    disabled,
-    fullWidth = true,
-    ...props
-}) => {
+                                                 value,
+                                                 onChange,
+                                                 loading = false,
+                                                 disabled,
+                                                 fullWidth = true,
+                                                 ...props
+                                             }) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         onChange(event.target.value);
     };

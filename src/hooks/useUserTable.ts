@@ -1,5 +1,5 @@
 import {useState, useMemo, useEffect, useCallback} from 'react';
-import { useRefresh } from './useRefresh';
+import {useRefresh} from './useRefresh';
 
 export interface Course {
     id: string;
@@ -77,7 +77,7 @@ export function useUserTableActions() {
     const [courseAssignUser, setCourseAssignUser] = useState<User | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
-    const { refreshCounter, refresh } = useRefresh();
+    const {refreshCounter, refresh} = useRefresh();
     const [snackbar, setSnackbar] = useState<SnackbarState>({
         open: false,
         message: '',

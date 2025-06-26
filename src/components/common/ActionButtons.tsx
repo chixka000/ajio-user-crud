@@ -18,9 +18,9 @@ interface ActionButtonsProps {
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
-    buttons,
-    size = 'small',
-}) => {
+                                                         buttons,
+                                                         size = 'small',
+                                                     }) => {
     return (
         <>
             {buttons.map((button, index) => (

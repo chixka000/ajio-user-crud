@@ -23,18 +23,18 @@ interface ConfirmationDialogProps {
 }
 
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
-    open,
-    onClose,
-    onConfirm,
-    title,
-    message,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
-    confirmColor = 'primary',
-    loading = false,
-    error,
-    warning,
-}) => {
+                                                                   open,
+                                                                   onClose,
+                                                                   onConfirm,
+                                                                   title,
+                                                                   message,
+                                                                   confirmText = 'Confirm',
+                                                                   cancelText = 'Cancel',
+                                                                   confirmColor = 'primary',
+                                                                   loading = false,
+                                                                   error,
+                                                                   warning,
+                                                               }) => {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
             <DialogTitle>{title}</DialogTitle>
@@ -47,9 +47,9 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                 <Button onClick={onClose} disabled={loading}>
                     {cancelText}
                 </Button>
-                <Button 
-                    onClick={onConfirm} 
-                    color={confirmColor} 
+                <Button
+                    onClick={onConfirm}
+                    color={confirmColor}
                     disabled={loading}
                     variant="contained"
                 >
