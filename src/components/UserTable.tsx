@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import UserTableToolbar from './UserTableToolbar';
-import {User, useUserTable} from '@/hooks/useUserTable';
+import {User, useUserTable, useUserTableActions} from '@/hooks/useUserTable';
 import UserForm from './UserForm';
 import CourseAssignment from './CourseAssignment';
 import {formatRelativeTime} from '@/utils/dateFormat';
@@ -14,51 +14,30 @@ import ChipList from './common/ChipList';
 import SchoolIcon from '@mui/icons-material/School';
 import PersonIcon from '@mui/icons-material/Person';
 
-
 const UserTable: React.FC = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [editUser, setEditUser] = useState<User | null>(null);
-    const [deleteUser, setDeleteUser] = useState<User | null>(null);
-    const [courseAssignUser, setCourseAssignUser] = useState<User | null>(null);
-    const [actionLoading, setActionLoading] = useState(false);
-    const [actionError, setActionError] = useState<string | null>(null);
-    const [localRefresh, setLocalRefresh] = useState(0);
-    const [snackbar, setSnackbar] = useState<{
-        open: boolean;
-        message: string;
-        severity: 'success' | 'error'
-    }>({open: false, message: '', severity: 'success'});
-
-    const loadUsers = () => {
-        let ignore = false;
-
-        setLoading(true);
-        setError(null);
-
-        const performFetch = async () => {
-            try {
-                const response = await fetch('/api/user-courses');
-                const data = await response.json();
-                if (!ignore) {
-                    if (Array.isArray(data)) setUsers(data);
-                    else setError(data.error || 'Failed to fetch users');
-                }
-            } catch (error: unknown) {
-                if (!ignore) setError(error instanceof Error ? error.message : 'An error occurred');
-            } finally {
-                if (!ignore) setLoading(false);
-            }
-        };
-
-        performFetch();
-        return () => {
-            ignore = true;
-        };
-    };
-
-    useEffect(loadUsers, [localRefresh]);
+    // Use the comprehensive hook for all business logic
+    const {
+        users,
+        loading,
+        error,
+        editUser,
+        deleteUser,
+        courseAssignUser,
+        actionLoading,
+        actionError,
+        snackbar,
+        handleEditClose,
+        handleCourseAssignClose,
+        handleDeleteClose,
+        handleDeleteConfirm,
+        handleEditSuccess,
+        handleUserCreationSuccess,
+        handleAssignmentChange,
+        handleSnackbarClose,
+        createCourseAssignHandler,
+        createEditHandler,
+        createDeleteHandler,
+    } = useUserTableActions();
 
     const {
         search,
@@ -70,65 +49,6 @@ const UserTable: React.FC = () => {
         filteredUsers,
         paginatedUsers,
     } = useUserTable(users);
-
-    const handleEdit = (user: User) => setEditUser(user);
-    const handleEditClose = () => setEditUser(null);
-    const handleCourseAssign = (user: User) => setCourseAssignUser(user);
-    const handleCourseAssignClose = () => setCourseAssignUser(null);
-    const handleShowSnackbar = (message: string, severity: 'success' | 'error') => setSnackbar({
-        open: true,
-        message,
-        severity
-    });
-    const handleSnackbarClose = () => setSnackbar({open: false, message: '', severity: 'success'});
-
-    const handleEditSuccess = () => {
-        setLocalRefresh(r => r + 1);
-        handleEditClose();
-        handleShowSnackbar('User updated successfully!', 'success');
-    };
-
-    const handleAssignmentChange = () => {
-        setLocalRefresh(r => r + 1);
-    };
-
-    const handleDelete = (user: User) => setDeleteUser(user);
-    const handleDeleteClose = () => setDeleteUser(null);
-
-    // Named functions for button handlers
-    const createCourseAssignHandler = (user: User) => () => handleCourseAssign(user);
-    const createEditHandler = (user: User) => () => handleEdit(user);
-    const createDeleteHandler = (user: User) => () => handleDelete(user);
-
-    // Named function for user creation success
-    const handleUserCreationSuccess = () => {
-        setLocalRefresh(r => r + 1);
-        handleShowSnackbar('User created successfully!', 'success');
-    };
-
-    const handleDeleteConfirm = async () => {
-        if (!deleteUser) return;
-        setActionLoading(true);
-        setActionError(null);
-        try {
-            const res = await fetch('/api/users', {
-                method: 'DELETE',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id: deleteUser.id}),
-            });
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || 'Failed to delete user');
-            }
-            setLocalRefresh(r => r + 1);
-            handleDeleteClose();
-            handleShowSnackbar('User deleted successfully!', 'error');
-        } catch (err: unknown) {
-            setActionError(err instanceof Error ? err.message : 'An error occurred');
-        } finally {
-            setActionLoading(false);
-        }
-    };
 
     if (error) return <ErrorAlert message={error}/>;
 
@@ -204,6 +124,7 @@ const UserTable: React.FC = () => {
                     />
                 }
             />
+
             <FormDialog
                 open={!!editUser}
                 onClose={handleEditClose}
